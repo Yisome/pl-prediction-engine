@@ -77,7 +77,7 @@ if match_data:
     connect.close()
 
     print("\nData successfully processed and saved to pl_historical_data.db")
-    print("DataFrame Preview:")
+    print("Preview:")
     print(df.head())
 
 
