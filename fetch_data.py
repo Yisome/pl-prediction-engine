@@ -20,6 +20,7 @@ headers = {
 params = {
     'league': '39', # Prem ID
     'season': '2023'  #year
+    #'status': "FT"
 }
 
 def get_data(url,headers, params):
@@ -32,6 +33,19 @@ def get_data(url,headers, params):
     except requests.exceptions.RequestException as e:
         print(f"Error fetching data: {e}")
         return None
+
+def get_stats(stats, team_t, stat_t):
+
+    if stats:
+        for stat in stats:
+            if stat.get('team') and stat.get('team').get('name') == team_t:
+                for x in stat.get('statistics', []):
+                    if x.get('type') == stat_t:
+                        return x.get('value', 0)
+    return 0
+
+
+
 
 match_data = get_data(endpoint, headers, params)
 
@@ -61,8 +75,32 @@ if match_data:
             'home_team': fixture['teams']['home']['name'],
             'away_team': fixture['teams']['away']['name'],
             'home_goals': fixture['goals']['home'],
-            'away_goals': fixture['goals']['away'],
+            'away_goals': fixture['goals']['away']
         }
+        '''
+        #in the doc for API-football, stats are in a differeent endpoint
+        stats_endpoint = f"{BASE_URL}/fixtures/statistics"
+        stats_params = {"fixture": fixture_details['fixture_id']}
+        stats_data = get_data(stats_endpoint, headers, stats_params)
+        '''
+
+        '''
+        if stats_data:
+            home = stats_data[0].get('statistics', [])
+            away = stats_data[1].get('statistics', [])
+            #shots -> look through list, fom item that is shots on goal/card and get value. Nothing found use 0
+            shots_home = next((s['value'] for s in home if s['type'] == 'Shots on Goal'), 0)
+            shots_away = next((s['value'] for s in away if s['type'] == 'Shots on Goal'), 0)
+
+            red_cards_home = next((s['value'] for s in home if s['type'] == 'Red Cards'), 0)
+            red_cards_away = next((s['value'] for s in away if s['type'] == 'Red Cards'), 0)
+
+            fixture_details['home_shots'] = shots_home
+            fixture_details['away_shots'] = shots_away
+            fixture_details['home_red_cards'] = red_cards_home
+            fixture_details['away_red_cards'] = red_cards_away
+            '''
+
         processed.append(fixture_details) #append the details of each fixture to processed
     
     #What this for loop is doing: scouring through all the fixtures in match data one by one and making a dictionary stored with the details of that fixture

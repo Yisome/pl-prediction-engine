@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Win Probability Predictor</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+        .container { background-color: #f4f4f4; padding: 20px; border-radius: 8px; }
+        h1 { text-align: center; }
+        label { display: block; margin-top: 10px; }
+        input { width: 95%; padding: 8px; margin-top: 5px; }
+        button { display: block; width: 100%; padding: 10px; margin-top: 20px; font-size: 16px; cursor: pointer; }
+        #result { text-align: center; margin-top: 20px; font-size: 24px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Premier League Win Probability</h1>
+        <form id="predictionForm">
+            <label for="goal_diff">Goal Difference (Home - Away):</label>
+            <input type="number" id="goal_diff" name="goal_diff" required>
+
+            <label for="shot_diff">Shot Difference (Home - Away):</label>
+            <input type="number" id="shot_diff" name="shot_diff" required>
+
+            <label for="red_card_diff">Red Card Difference (Home - Away):</label>
+            <input type="number" id="red_card_diff" name="red_card_diff" required>
+
+            <button type="submit">Get Prediction</button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevents the form from submitting in the traditional way
+
+            // Get the values from the form inputs
+            const goal_diff = parseInt(document.getElementById('goal_diff').value);
+            const shot_diff = parseInt(document.getElementById('shot_diff').value);
+            const red_card_diff = parseInt(document.getElementById('red_card_diff').value);
+
+            // Create a JSON object with the data
+            const data = {
+                goal_diff: goal_diff,
+                shot_diff: shot_diff,
+                red_card_diff: red_card_diff
+            };
+
+            // This is the URL of your Flask server
+            const baseUrl = 'http://127.0.0.1:5000';
+
+            // Send a POST request to our Flask server's /predict endpoint
+            try {
+                const response = await fetch(`${baseUrl}/predict`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                // Get the JSON response from the server
+                const result = await response.json();
+                
+                // Check if the response was successful
+                if (response.ok) {
+                    const probability = (result.win_probability * 100).toFixed(2);
+                    document.getElementById('result').textContent = `Home Win Probability: ${probability}%`;
+                } else {
+                    document.getElementById('result').textContent = `Error: ${result.error || 'Server error'}`;
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                document.getElementById('result').textContent = 'An error occurred. Make sure your server is running.';
+            }
+        });
+    </script>
+</body>
+</html>

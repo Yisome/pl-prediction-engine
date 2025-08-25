@@ -15,5 +15,9 @@ Mainly just learned how to fetch the data and transform it into a database. Esse
 Then, I just went through each fixture of that season and got the nitty gritty basic details of each match using a dictionary and appending it to an array.
 Made a dataframe for that array and converted it to a sqlite database
 
+8/24/25
 
+Ran into a problem; football-api only lets me use so many requests a day which is pretty bad considering the accessing and looping of the get_stats function is now limited by the free tier of the api so I decided to download the Kaggle Premier League 2000-2023 historical data set and change the fetch_data.py.
+
+I will still use the football-api for live matches though, I shall see.
 
